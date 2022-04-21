@@ -1,25 +1,29 @@
-import logo from './logo.svg';
+import 'devextreme/dist/css/dx.common.css';
+import 'devextreme/dist/css/dx.material.orange.light.css';
 import './App.css';
 
-function App() {
+
+import React from 'react';
+import RecipeForm from './Components/recipeForm';
+import RecipeDatagrid from './Components/recipeDatagrid';
+
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+  }
+
+render() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Mes recettes</h1>
+        <RecipeForm />
+        <RecipeDatagrid />      
     </div>
   );
+}
+
 }
 
 export default App;
