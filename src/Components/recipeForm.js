@@ -3,23 +3,9 @@ import Form, { Item } from 'devextreme-react/form';
 import 'devextreme-react/text-area';
 import 'devextreme-react/tag-box';
 import { Button } from 'devextreme-react/button';
+import Popup from 'devextreme-react/popup';
+import ScrollView from 'devextreme-react/scroll-view';
 
-const simpleProducts = [
-    'HD Video Player',
-    'SuperHD Video Player',
-    'SuperPlasma 50',
-    'SuperLED 50',
-    'SuperLED 42',
-    'SuperLCD 55',
-    'SuperLCD 42',
-    'SuperPlasma 65',
-    'SuperLCD 70',
-    'Projector Plus',
-    'Projector PlusHT',
-    'ExcelRemote IR',
-    'ExcelRemote Bluetooth',
-    'ExcelRemote IP',
-  ];
 
 var recipeData = {
     name: 'Carrée',
@@ -97,7 +83,7 @@ class RecipeForm extends React.Component {
             maxSelectedItems: 5,
             onCustomItemCreating: this.onCustomItemCreating
         };
-        
+
         this.instructionsEditorOptions = {
             dataSource: [
                 { text: 'Mélanger', value: 'Mélanger' }
@@ -113,7 +99,7 @@ class RecipeForm extends React.Component {
             onCustomItemCreating: this.onCustomItemCreating
         };
 
-          
+
         this.notesEditorOptions = {
             placeholder: 'Notes'
         };
@@ -129,41 +115,48 @@ class RecipeForm extends React.Component {
         } = this.state;
 
         return (
-            <div>
-                <div>
-                    <Form
-                        onContentReady={this.validateForm}
-                        colCount={2}
-                        id="form"
-                        formData={recipeData}>
-                        <Item dataField="Name" editorOptions={this.nameEditorOptions} />
-                        <Item dataField="Type" editorType="dxSelectBox" editorOptions={this.typeEditorOptions} />
-                        <Item dataField="TimeCook" editorType="dxNumberBox" editorOptions={this.timeCookEditorOptions} />
-                        <Item dataField="TimePrep" editorType="dxNumberBox" editorOptions={this.timePrepEditorOptions} />
-                        <Item dataField="Ingredients" editorType="dxTagBox" editorOptions={this.tagsEditorOptions}  />
-                        <Item dataField="Instructions" colSpan={2} editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
-                        <Item dataField="Notes"  colSpan={2} editorType="dxTextArea" editorOptions={this.notesEditorOptions} />
-                        <Item dataField="Tags" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
-                    </Form>
-                </div>
-                <div>
-                    <Button
-                        width={120}
-                        text="Annuler"
-                        type="normal"
-                        stylingMode="contained"
-                        onClick={this.onClick}
-                    />
-                    <Button
-                        width={120}
-                        text="Créer"
-                        type="default"
-                        stylingMode="contained"
-                        onClick={this.onClick}
-                    />
-                </div>
-            </div>
-        );
+            <Popup
+                visible={false}
+                showTitle={false}
+                closeOnOutsideClick={false}>
+                <ScrollView width='100%' height='100%'>
+                    <div>
+                        <div>
+                            <Form
+                                onContentReady={this.validateForm}
+                                colCount={2}
+                                id="form"
+                                formData={recipeData}>
+                                <Item dataField="Name" editorOptions={this.nameEditorOptions} />
+                                <Item dataField="Type" editorType="dxSelectBox" editorOptions={this.typeEditorOptions} />
+                                <Item dataField="TimeCook" editorType="dxNumberBox" editorOptions={this.timeCookEditorOptions} />
+                                <Item dataField="TimePrep" editorType="dxNumberBox" editorOptions={this.timePrepEditorOptions} />
+                                <Item dataField="Ingredients" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
+                                <Item dataField="Instructions" colSpan={2} editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
+                                <Item dataField="Notes" colSpan={2} editorType="dxTextArea" editorOptions={this.notesEditorOptions} />
+                                <Item dataField="Tags" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
+                            </Form>
+                        </div>
+                        <div>
+                            <Button
+                                width={120}
+                                text="Annuler"
+                                type="normal"
+                                stylingMode="contained"
+                                onClick={this.onClick}
+                            />
+                            <Button
+                                width={120}
+                                text="Créer"
+                                type="default"
+                                stylingMode="contained"
+                                onClick={this.onClick}
+                            />
+                        </div>
+                    </div>
+                </ScrollView>
+            </Popup>
+        )
     }
 }
 
