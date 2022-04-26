@@ -10,10 +10,8 @@ import DataGrid, {
   Scrolling,
   Selection,
 } from 'devextreme-react/data-grid';
-import { Item } from 'devextreme-react/form';
 import { Button } from 'devextreme-react/button';
-import ArrayStore from 'devextreme/data/array_store';
-import DataSource from 'devextreme/data/data_source';
+
 
 const columns = ['Id', 'Name', 'TimeCook', 'TimePrep', 'Instructions', 'Note', 'Tags'];
 const allowedPageSizes = [5, 10, 'all'];
@@ -28,9 +26,15 @@ class RecipeDatagrid extends React.Component {
       selectedItemKeys: []
     };
 
-    this.selectionChanged = this.selectionChanged.bind(this);
     this.deleteRecords = this.deleteRecords.bind(this);
     this.addRecord = this.addRecord.bind(this);
+    this.editRecipe = this.editRecipe.bind(this);
+    this.cellRender = this.cellRender.bind(this);
+    this.onSelectionChanged = this.onSelectionChanged.bind(this);
+  }
+
+  editRecipe(recipeId) {
+    this.props.editRecipe(recipeId)
   }
 
   render() {
@@ -40,8 +44,9 @@ class RecipeDatagrid extends React.Component {
           dataSource={this.props.recipes}
           defaultColumns={columns}
           showBorders={true}
-          selectedRowKeys={this.state.selectedItemKeys}
-          onSelectionChanged={this.selectionChanged}
+          onSelectionChanged={this.onSelectionChanged}
+          hoverStateEnabled={true}
+          keyExpr="Id"
         >
           <Scrolling rowRenderingMode='virtual'></Scrolling>
           <Paging defaultPageSize={8} />
@@ -87,11 +92,19 @@ class RecipeDatagrid extends React.Component {
     */
   }
 
-  selectionChanged(data) {
-    console.log(this.state.selectedItemKeys.length)
-    this.setState({
-      selectedItemKeys: data.selectedRowKeys,
-    });
+ cellRender(data) {
+   console.log(data);
+    return <Button
+        text="Edit"
+        type= "normal"
+        stylingMode= "contained"
+        icon="edit"
+        onClick={() => this.editRecipe(data.value)}
+      />
+  }
+  onSelectionChanged({ selectedRowsData }) {
+    const data = selectedRowsData[0];
+    this.editRecipe(data.Id);   
   }
 }
 

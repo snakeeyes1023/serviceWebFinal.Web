@@ -7,39 +7,36 @@ const addButtonOptions = {
     location: 'after',
     text: "Ajouter une recette",
     type: "default",
-    stylingMode: "contained",
-    onClick: () => {
-        notify('Add button has been clicked!');
-    },
+    stylingMode: "contained"
 };
 
-function renderLabel() {
-    return <div className="toolbar-label"><b>Mes recettes | totals : 1</b> </div>;
-}
 
 const deleteButtonOptions = {
     icon: 'trash',
     location: 'after',
     text: "Suprimer les recettes sélectionnées",
     type: "normal",
-    stylingMode: "contained",
-    onClick: () => {
-        notify('delete button has been clicked!');
-    },
+    stylingMode: "contained"
 };
 
 class CustomToolbar extends React.Component {
 
     constructor(props) {
         super(props);
-    }
 
+        this.renderLabel = this.renderLabel.bind(this);
+    }
+    
+    renderLabel() {
+        console.log(this.props.totalRecipes);
+        return <div className="toolbar-label"><b>Mes recettes | totals : {this.props.totalRecipes}</b> </div>;
+    }
     render() {
         return (
             <Toolbar>
                 <Item location="before"
                     locateInMenu="never"
-                    render={renderLabel} />
+                    render={this.renderLabel} />
 
                 <Item location="after"
                     locateInMenu="auto"
@@ -48,6 +45,7 @@ class CustomToolbar extends React.Component {
 
                 <Item location="after"
                     locateInMenu="auto"
+                    onClick={() => this.props.showPopup()}
                     widget="dxButton"
                     options={addButtonOptions} />
             </Toolbar>

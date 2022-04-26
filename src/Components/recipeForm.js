@@ -2,61 +2,38 @@ import React from 'react';
 import Form, { Item } from 'devextreme-react/form';
 import 'devextreme-react/text-area';
 import 'devextreme-react/tag-box';
-import { Button } from 'devextreme-react/button';
-import Popup from 'devextreme-react/popup';
-import ScrollView from 'devextreme-react/scroll-view';
-
-
-var recipeData = {
-    name: 'Carrée',
-    type: 'Datte',
-    timeCook: 20,
-    timePrep: 10,
-    ingredients: [
-        {
-            name: 'Farine',
-            quantity: '1 kg'
-        },
-        {
-            name: 'Oeuf',
-            quantity: '2'
-        },
-        {
-            name: 'Lait',
-            quantity: '1/2'
-        }
-    ],
-    instructions: [
-        'Mélanger la farine et le lait',
-        'Ajouter les oeufs',
-        'Mélanger',
-        'Ajouter la levure',
-        'Mélanger',
-        'Ajouter le sucre',
-    ],
-    notes: 'C\'est une recette de carrée',
-    tags: "carrée, datte, dessert, cuisson, cuisson rapide, facile"
-};
+import { Toolbar } from 'devextreme-react';
 
 class RecipeForm extends React.Component {
 
+    cancelButtonOptions = null;
+    createButtonOptions = null;
+
     constructor(props) {
         super(props);
+
+
         this.state = {
             selectedItemKeys: [],
             readOnly: false,
             showColon: true,
             minColWidth: 300,
             colCount: 2,
-            recipeData: recipeData,
+            positionOf: '',
+            recipeData: {}
         };
-        this.nameEditorOptions = { placeholder: 'Nom de la recette' };
+
+        this.nameEditorOptions = {
+            placeholder: 'Nom de la recette'
+        };
+
         this.typeEditorOptions = {
             dataSource: [
                 { text: 'Dessert', value: 'Dessert' }
             ],
             placeholder: 'Type de recette'
         };
+
         this.timeCookEditorOptions = {
             placeholder: 'Temps de cuisson',
             min: 0,
@@ -69,36 +46,14 @@ class RecipeForm extends React.Component {
             max: 120,
             step: 5
         };
+
         this.ingredientsEditorOptions = {
-            dataSource: [
-                { text: 'Farine', value: 'Farine' }
-            ],
-            placeholder: 'Ingrédients',
-            acceptCustomValue: true,
-            valueExpr: 'value',
-            displayExpr: 'text',
-            searchEnabled: true,
-            searchTimeout: 500,
-            minSearchLength: 0,
-            maxSelectedItems: 5,
-            onCustomItemCreating: this.onCustomItemCreating
+            placeholder: 'Notes'
         };
 
         this.instructionsEditorOptions = {
-            dataSource: [
-                { text: 'Mélanger', value: 'Mélanger' }
-            ],
-            placeholder: 'Instructions',
-            acceptCustomValue: true,
-            valueExpr: 'value',
-            displayExpr: 'text',
-            searchEnabled: true,
-            searchTimeout: 500,
-            minSearchLength: 0,
-            maxSelectedItems: 5,
-            onCustomItemCreating: this.onCustomItemCreating
+            placeholder: 'Notes'
         };
-
 
         this.notesEditorOptions = {
             placeholder: 'Notes'
@@ -107,55 +62,69 @@ class RecipeForm extends React.Component {
             acceptCustomValue: true,
             valueExpr: 'value',
         }
+
+        this.createUpdateButtonOptions = {
+            location: 'after',
+            text: "Enregistrer",
+            type: "success",
+            stylingMode: "contained"
+        };
+
+        this.cancelButtonOptions = {
+            icon: 'close',
+            location: 'after',
+            text: "Annuler",
+            type: "normal",
+            stylingMode: "contained"
+        };
+        this.setForm = (ref) => {
+            this.form = ref.instance;
+        };
+
+        this.sendForm = this.sendForm.bind(this);
+    }
+
+    //submit the form and update the state
+    sendForm = (e) => {
+        console.log(this.props.recipeData);
+        alert(JSON.stringify(this.form.option("formData")));
     }
 
     render() {
-        const {
-            recipeData,
-        } = this.state;
 
         return (
-            <Popup
-                visible={false}
-                showTitle={false}
-                closeOnOutsideClick={false}>
-                <ScrollView width='100%' height='100%'>
-                    <div>
-                        <div>
-                            <Form
-                                onContentReady={this.validateForm}
-                                colCount={2}
-                                id="form"
-                                formData={recipeData}>
-                                <Item dataField="Name" editorOptions={this.nameEditorOptions} />
-                                <Item dataField="Type" editorType="dxSelectBox" editorOptions={this.typeEditorOptions} />
-                                <Item dataField="TimeCook" editorType="dxNumberBox" editorOptions={this.timeCookEditorOptions} />
-                                <Item dataField="TimePrep" editorType="dxNumberBox" editorOptions={this.timePrepEditorOptions} />
-                                <Item dataField="Ingredients" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
-                                <Item dataField="Instructions" colSpan={2} editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
-                                <Item dataField="Notes" colSpan={2} editorType="dxTextArea" editorOptions={this.notesEditorOptions} />
-                                <Item dataField="Tags" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
-                            </Form>
-                        </div>
-                        <div>
-                            <Button
-                                width={120}
-                                text="Annuler"
-                                type="normal"
-                                stylingMode="contained"
-                                onClick={this.onClick}
-                            />
-                            <Button
-                                width={120}
-                                text="Créer"
-                                type="default"
-                                stylingMode="contained"
-                                onClick={this.onClick}
-                            />
-                        </div>
-                    </div>
-                </ScrollView>
-            </Popup>
+            <div className={this.props.showPopup ? "mb-5" : "d-none"}>
+                <Form
+                    ref={this.setForm}
+                    onContentReady={this.validateForm}
+                    colCount={2}
+                    id="form"
+                    formData={this.state.recipeData}>
+                    <Item dataField="Id" editorOptions={this.nameEditorOptions} />
+                    <Item dataField="Name" editorOptions={this.nameEditorOptions} />
+                    <Item dataField="Type" editorType="dxSelectBox" editorOptions={this.typeEditorOptions} />
+                    <Item dataField="TimeCook" editorType="dxNumberBox" editorOptions={this.timeCookEditorOptions} />
+                    <Item dataField="TimePrep" editorType="dxNumberBox" editorOptions={this.timePrepEditorOptions} />
+                    <Item dataField="Ingredients" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
+                    <Item dataField="Instructions" colSpan={2} editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
+                    <Item dataField="Notes" colSpan={2} editorType="dxTextArea" editorOptions={this.notesEditorOptions} />
+                    <Item dataField="Tags" editorType="dxTagBox" editorOptions={this.tagsEditorOptions} />
+                </Form>
+                <Toolbar>
+                    <Item location="after"
+                        locateInMenu="auto"
+                        widget="dxButton"
+                        onClick={() => this.props.hidePopup()}
+                        options={this.cancelButtonOptions} />
+
+                    <Item location="after"
+                        locateInMenu="auto"
+                        icon= {this.props.selectedRecipeId === 0 ? 'plus' : 'edit'}
+                        widget="dxButton"
+                        onClick={() => this.sendForm()}
+                        options={this.createUpdateButtonOptions} />
+                </Toolbar>
+            </div>
         )
     }
 }

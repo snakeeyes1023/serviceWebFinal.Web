@@ -1,5 +1,7 @@
+
+ 
 import 'devextreme/dist/css/dx.common.css';
-import 'devextreme/dist/css/dx.material.orange.light.compact.css';
+import 'devextreme/dist/css/dx.light.css';
 import './App.css';
 import axios from 'axios';
 
@@ -13,18 +15,66 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
-      recipes: []
+      recipes: [],
+      recipeData: {},
+      recipePopupVisible: false,
+      selectedRecipeId: 0
     };
+
+    this.editRecipe = this.editRecipe.bind(this);
+    this.createRecipe = this.createRecipe.bind(this);
+    this.showCreateRecipePopup = this.showCreateRecipePopup.bind(this);
+    this.hideCreateRecipePopup = this.hideCreateRecipePopup.bind(this);
   }
 
   render() {
     return (
       <div className="App">
-        <CustomToolbar />
-        <RecipeDatagrid recipes={this.state.recipes} />
+
+        <RecipeForm 
+          showPopup={this.state.recipePopupVisible} 
+          hidePopup={this.hideCreateRecipePopup} 
+          selectedRecipeId={this.state.selectedRecipeId}
+        />
+
+        <CustomToolbar totalRecipes={this.state.recipes.length} showPopup={this.showCreateRecipePopup} />
+
+        <RecipeDatagrid 
+          recipes={this.state.recipes}
+          editRecipe={this.editRecipe}
+         />
       </div>
     );
+  }
+
+  showCreateRecipePopup() {
+    this.setState({
+      recipePopupVisible: true
+    });
+    console.log("showCreateRecipePopup");
+  }
+
+  hideCreateRecipePopup() {
+    this.setState({
+      recipePopupVisible: false
+    });
+    console.log("hideCreateRecipePopup");
+  }
+  
+  createRecipe() {
+    this.setState({
+      recipePopupVisible: true,
+      selectedRecipeId: 0
+    });
+  }
+
+  editRecipe(recipeId) {
+    this.setState({
+      recipePopupVisible: true,
+      selectedRecipeId: recipeId
+    });
   }
 
   componentDidMount() {
