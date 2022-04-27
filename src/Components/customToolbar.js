@@ -28,7 +28,6 @@ class CustomToolbar extends React.Component {
     }
     
     renderLabel() {
-        console.log(this.props.totalRecipes);
         return <div className="toolbar-label"><b>Mes recettes | totals : {this.props.totalRecipes}</b> </div>;
     }
     render() {
@@ -41,6 +40,7 @@ class CustomToolbar extends React.Component {
                 <Item location="after"
                     locateInMenu="auto"
                     widget="dxButton"
+                    onClick={() => this.props.deleteRecipe()}
                     options={deleteButtonOptions} />
 
                 <Item location="after"

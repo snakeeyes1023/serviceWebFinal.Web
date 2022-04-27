@@ -68,32 +68,7 @@ class RecipeDatagrid extends React.Component {
     );
   }
 
-  deleteRecords() {
-    /**
-    this.state.selectedItemKeys.forEach((key) => {
-      dataSource.store().remove(key);
-    });
-    this.setState({
-      selectedItemKeys: [],
-    });
-    dataSource.reload();
-    */
-  }
-
-  addRecord() {
-    /**
-    this.state.selectedItemKeys.forEach((key) => {
-      dataSource.store().remove(key);
-    });
-    this.setState({
-      selectedItemKeys: [],
-    });
-    dataSource.reload();
-    */
-  }
-
  cellRender(data) {
-   console.log(data);
     return <Button
         text="Edit"
         type= "normal"
