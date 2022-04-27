@@ -1,6 +1,5 @@
 import React from 'react';
 import Toolbar, { Item } from 'devextreme-react/toolbar';
-import notify from 'devextreme/ui/notify';
 
 const addButtonOptions = {
     icon: 'plus',

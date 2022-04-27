@@ -1,12 +1,8 @@
 import React from 'react';
 import DataGrid, {
   Column,
-  Editing,
-  Popup,
   Paging,
-  Lookup,
   Pager,
-  Toolbar,
   Scrolling,
   Selection,
 } from 'devextreme-react/data-grid';
@@ -15,7 +11,6 @@ import { Button } from 'devextreme-react/button';
 
 const columns = ['Id', 'Name', 'TimeCook', 'TimePrep', 'Instructions', 'Note', 'Tags'];
 const allowedPageSizes = [5, 10, 'all'];
-const notesEditorOptions = { height: 100 };
 
 class RecipeDatagrid extends React.Component {
 
@@ -26,8 +21,6 @@ class RecipeDatagrid extends React.Component {
       selectedItemKeys: []
     };
 
-    this.deleteRecords = this.deleteRecords.bind(this);
-    this.addRecord = this.addRecord.bind(this);
     this.editRecipe = this.editRecipe.bind(this);
     this.cellRender = this.cellRender.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
