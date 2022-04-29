@@ -1,14 +1,14 @@
-
-
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.material.orange.light.css';
 import './App.css';
 import axios from 'axios';
+import notify from 'devextreme/ui/notify';
 
 import React from 'react';
 import RecipeForm from './Components/recipeForm';
 import RecipeDatagrid from './Components/recipeDatagrid';
 import CustomToolbar from './Components/customToolbar';
+import { confirm } from 'devextreme/ui/dialog';
 
 
 class App extends React.Component {
@@ -41,14 +41,15 @@ class App extends React.Component {
           showPopup={this.state.recipePopupVisible}
           hidePopup={this.hideCreateRecipePopup}
           updateRecipes={this.updateRecipes}
+          deleteRecipe={this.deleteRecipe}
           selectedRecipeId={this.state.selectedRecipeId}
           selectedRecipe={this.state.recipeToEdit}
           recipeType={this.state.recipeType}
         />
 
-        <CustomToolbar 
-          totalRecipes={this.state.recipes.length} 
-          showPopup={this.showCreateRecipePopup} 
+        <CustomToolbar
+          totalRecipes={this.state.recipes.length}
+          showPopup={this.showCreateRecipePopup}
           deleteRecipe={this.deleteRecipe}
         />
 
@@ -94,6 +95,8 @@ class App extends React.Component {
 
         const recipe = response.data;
 
+        window.scrollTo(0, 0);
+
         this.setState({
           recipeToEdit: recipe,
           recipePopupVisible: true,
@@ -102,6 +105,8 @@ class App extends React.Component {
       })
   }
 
+
+
   /**
    * Delete a recipe
    * 
@@ -109,14 +114,27 @@ class App extends React.Component {
   deleteRecipe() {
     //get selected recipe
     var selectedRecipeId = this.state.selectedRecipeId;
-    var url = "http://localhost/serviceWebFinal.Api/recipe?id=" + selectedRecipeId;
 
-    axios.delete(url)
-      .then((response) => {
-        this.updateRecipes();
-      })
+    let result = confirm("<i>Êtes-vous sûr de vouloir supprimer cette recette?</i>", "Confirmer la suppression");
+
+    result.then((dialogResult) => {
+
+      if (dialogResult) {
+
+        var url = "http://localhost/serviceWebFinal.Api/recipe/" + selectedRecipeId;
+
+        axios.delete(url, { headers: { "Access-Control-Allow-Origin": "*" }, })
+          .then((response) => {
+            this.updateRecipes();
+            this.hideCreateRecipePopup();
+            notify("La recette a bien été supprimée!", "success")
+          })
+      }
+
+    });
+
   }
-      
+
 
   /**
    * Get the list of recipe types

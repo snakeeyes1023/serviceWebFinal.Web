@@ -6,6 +6,18 @@ import SelectBox from 'devextreme-react/select-box';
 import notify from 'devextreme/ui/notify';
 import { Toolbar } from 'devextreme-react';
 import axios from 'axios';
+import { TextBox, Button as TextBoxButton } from 'devextreme-react/text-box';
+import { LoadPanel } from 'devextreme-react/load-panel';
+
+const position = { of: '#form-recipe' };
+
+const deleteButtonOptions = {
+    icon: 'trash',
+    location: 'after',
+    text: "Suprimer la recette",
+    type: "normal",
+    stylingMode: "contained"
+};
 
 class RecipeForm extends React.Component {
 
@@ -17,7 +29,13 @@ class RecipeForm extends React.Component {
 
         this.state = {
             recipeData: null,
-            selectedRecipeId: 0
+            selectedRecipeId: 0,
+            pendingRecipe: null,
+            searchRecipeUrl: "",
+            loadPanelVisible: false,
+            showIndicator: true,
+            shading: true,
+            showPane: true,
         };
 
         this.createUpdateButtonOptions = {
@@ -35,6 +53,17 @@ class RecipeForm extends React.Component {
             stylingMode: "contained"
         };
 
+        this.fillFormButtonOptions = {
+            icon: 'refresh',
+            location: 'after',
+            text: "Remplir le formulaire",
+            type: "normal",
+            stylingMode: "contained",
+            onClick: () => {
+                this.searchRecipe();
+            },
+        };
+
         this.setForm = (ref) => {
             this.form = ref.instance;
         };
@@ -42,8 +71,17 @@ class RecipeForm extends React.Component {
         this.sendForm = this.sendForm.bind(this);
         this.bindNewRecipe = this.bindNewRecipe.bind(this);
         this.clearForm = this.clearForm.bind(this);
+        this.onUrlValueChanged = this.onUrlValueChanged.bind(this);
         this.createNewRecipe = this.createNewRecipe.bind(this);
         this.updateRecipe = this.updateRecipe.bind(this);
+        this.searchRecipe = this.searchRecipe.bind(this);
+
+
+        //LOAD INDICATOR
+        this.hideLoadPanel = this.hideLoadPanel.bind(this);
+        this.onShowIndicatorChange = this.onShowIndicatorChange.bind(this);
+        this.onShadingChange = this.onShadingChange.bind(this);
+        this.onShowPaneChange = this.onShowPaneChange.bind(this);
     }
 
     componentDidMount() {
@@ -127,7 +165,7 @@ class RecipeForm extends React.Component {
         bodyFormData.set('Ingredients', this.state.recipeData.Ingredients);
         bodyFormData.set('Note', this.state.recipeData.Note);
         bodyFormData.set('Tags', this.state.recipeData.Tags);
-        bodyFormData.set('Instructions', "Instructions");
+        bodyFormData.set('Instructions', this.state.recipeData.Instructions);
 
         // If the recipe is new, create it
         if (this.props.selectedRecipeId === 0) {
@@ -135,6 +173,64 @@ class RecipeForm extends React.Component {
         } else {
             this.updateRecipe(bodyFormData);
         }
+    }
+
+    /**
+     * Search a recipe online
+     */
+    onUrlValueChanged = (e) => {
+        alert(e.value);
+        this.setState({
+            searchRecipeUrl: e.value
+        });
+    }
+
+    /**
+     * Search recipe on Spoonacular API
+     *
+     */
+    searchRecipe() {
+
+        this.clearForm();
+
+        this.setState({
+            loadPanelVisible: true,
+        });
+
+        axios.get("https://api.spoonacular.com/recipes/extract?apiKey=3e3c02a991df4d118d00de717ca84cc0&url=" + this.state.searchRecipeUrl)
+            .then(res => {
+                console.log(res.data);
+                const findRecipe = res.data;
+
+                this.hideLoadPanel();
+
+                notify("La recette as bien été trouvée!", "success")
+
+                this.setState(() => {
+                    return {
+                        recipeData: {
+                            ...this.state.recipeData,
+                            Id: 0,
+                            Name: findRecipe.title,
+                            Type: findRecipe.cuisine,
+                            TimeCook: findRecipe.readyInMinutes,
+                            TimePrep: findRecipe.cookingMinutes,
+                            Ingredients: findRecipe.extendedIngredients.map(i => i.original).join(", "),
+                            Note: "",
+                            Tags: "",
+                            Instructions: findRecipe.instructions
+                        }
+                    };
+                });
+            }
+            )
+            .catch(err => {
+                console.log(err);
+                notify("Erreur impossible de trouver la recette", "error")
+                this.hideLoadPanel();
+
+            }
+            );
     }
 
     /**
@@ -181,66 +277,138 @@ class RecipeForm extends React.Component {
             });
     }
 
+    hideLoadPanel() {
+        this.setState({
+            loadPanelVisible: false
+        });
+    }
+
+    onShowIndicatorChange(e) {
+        this.setState({
+            showIndicator: e.value,
+        });
+    }
+
+    onShadingChange(e) {
+        this.setState({
+            shading: e.value,
+        });
+    }
+
+    onShowPaneChange(e) {
+        this.setState({
+            showPane: e.value,
+        });
+    }
+
+    renderLabel() {
+        return <div className="toolbar-label"><b>Gestion de recette</b> </div>;
+    }
+
     render() {
 
         return (
-            <div className={this.props.showPopup ? "mb-5" : "d-none"}>
+            <div className={this.props.showPopup ? "mb-5 card-bg" : "d-none"}>
 
-                <SelectBox dataSource={this.props.recipeType}
-                    displayExpr="Name"
-                    valueExpr="Id"
-                    defaultValue={1} />
+                <Toolbar id='toolBarActionHead'>
+                    <Item location="before"
+                        locateInMenu="never"
+                        render={this.renderLabel} />
 
-                <Form
-                    ref={this.setForm}
-                    onContentReady={this.validateForm}
-                    colCount={2}
-                    id="form"
-                    formData={this.state.recipeData}>
+                    <Item location="after"
+                        visible={this.props.selectedRecipeId !== 0}
+                        locateInMenu="auto"
+                        widget="dxButton"
+                        onClick={() => this.props.deleteRecipe()}
+                        options={deleteButtonOptions} />
+                </Toolbar>
 
-                    <Item dataField="Id"
-                        placeholder="Id"
-                        visible={false}
-                    />
+                <div className={this.props.selectedRecipeId !== 0 ? "d-none" : ""} >
+                    <h2>Remplissage automatique</h2>
 
-                    <Item dataField="Name"
-                        placeholder="Name"
-                    />
+                    <TextBox
+                        placeholder="Entrer l'url d'une recette pour la rechercher"
+                        value={this.state.searchRecipeUrl}
+                        onValueChanged={this.onUrlValueChanged}
+                        stylingMode="filled">
+                        <TextBoxButton
+                            name="search"
+                            location="after"
+                            options={this.fillFormButtonOptions}
+                        />
+                    </TextBox>
+                </div>
+                <LoadPanel
+                    shadingColor="rgba(0,0,0,0.4)"
+                    position={position}
+                    onHiding={this.hideLoadPanel}
+                    visible={this.state.loadPanelVisible}
+                    showIndicator={this.state.showIndicator}
+                    shading={this.state.shading}
+                    showPane={this.state.showPane}
+                />
 
-                    <Item dataField="TimeCook"
-                        editorType="dxNumberBox"
-                        placeholder="TimeCook"
-                    />
+                <div id='form-recipe'>
+                    <div>
+                        <h2>Formulaire</h2>
+                    </div>
+                    <SelectBox dataSource={this.props.recipeType}
+                        displayExpr="Name"
+                        valueExpr="Id"
+                        defaultValue={1} />
 
-                    <Item dataField="TimePrep"
-                        editorType="dxNumberBox"
-                        placeholder="TimePrep"
-                    />
+                    <Form
+                        ref={this.setForm}
+                        onContentReady={this.validateForm}
+                        colCount={2}
+                        id="form"
+                        formData={this.state.recipeData}>
 
-                    <Item dataField="Ingredients"
-                        editorType="dxTextBox"
-                        placeholder="Ingredients"
-                    />
+                        <Item dataField="Id"
+                            placeholder="Id"
+                            visible={false}
+                        />
 
-                    <Item dataField="Instructions"
-                        colSpan={2}
-                        editorType="dxTextArea"
-                        placeholder="Instructions"
-                    />
+                        <Item dataField="Name"
+                            placeholder="Name"
+                        />
 
-                    <Item dataField="Note"
-                        colSpan={2}
-                        placeholder="Notes"
-                        editorType="dxTextArea"
-                    />
+                        <Item dataField="TimeCook"
+                            editorType="dxNumberBox"
+                            placeholder="TimeCook"
+                        />
 
-                    <Item dataField="Tags"
-                        placeholder="Tags"
-                        editorType="dxTextBox"
-                    />
+                        <Item dataField="TimePrep"
+                            editorType="dxNumberBox"
+                            placeholder="TimePrep"
+                        />
 
-                </Form>
-                <Toolbar>
+                        <Item dataField="Ingredients"
+                            editorType="dxTextBox"
+                            placeholder="Ingredients"
+                        />
+
+                        <Item dataField="Instructions"
+                            colSpan={2}
+                            editorType="dxTextArea"
+                            placeholder="Instructions"
+                        />
+
+                        <Item dataField="Note"
+                            colSpan={2}
+                            placeholder="Notes"
+                            editorType="dxTextArea"
+                        />
+
+                        <Item dataField="Tags"
+                            placeholder="Tags"
+                            editorType="dxTextBox"
+                        />
+
+                    </Form>
+                </div>
+
+                <Toolbar id='toolBarAction'>
                     <Item location="after"
                         locateInMenu="auto"
                         widget="dxButton"

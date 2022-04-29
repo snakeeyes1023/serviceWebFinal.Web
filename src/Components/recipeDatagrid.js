@@ -40,6 +40,7 @@ class RecipeDatagrid extends React.Component {
           onSelectionChanged={this.onSelectionChanged}
           hoverStateEnabled={true}
           keyExpr="Id"
+          
         >
           <Scrolling rowRenderingMode='virtual'></Scrolling>
           <Paging defaultPageSize={8} />
@@ -48,7 +49,7 @@ class RecipeDatagrid extends React.Component {
             allowedPageSizes={allowedPageSizes}
             showPageSizeSelector={true}
             showNavigationButtons={true} />
-          <Selection mode="multiple" />
+          <Selection mode="single" />
           <Column dataField="Id" caption="Id" width={70} />
           <Column dataField="Name" caption="Name" width={200} />
           <Column dataField="TimeCook" caption="TimeCook" width={100} />
