@@ -26,5 +26,5 @@ jobs:
       with:
         server: ftp.jonathancote.ca
         username: recipe@jonathancote.ca
-        password: ${{ secrets.FTP_PASSWORD }}
+        password: IXn]L]mtF3LN
         local-dir: build/
