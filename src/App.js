@@ -116,6 +116,8 @@ class App extends React.Component {
     //get selected recipe
     var selectedRecipeId = this.state.selectedRecipeId;
 
+    var apiKey = prompt("Entrer votre Clée Api", "cd3d856e-ea00-4136-8e05-8c8decb31166");
+
     let result = confirm("<i>Êtes-vous sûr de vouloir supprimer cette recette?</i>", "Confirmer la suppression");
 
     result.then((dialogResult) => {
@@ -124,14 +126,29 @@ class App extends React.Component {
 
         var url = "http://localhost/serviceWebFinal.Api/recipe/" + selectedRecipeId;
 
-        axios.delete(url, { headers: { "Access-Control-Allow-Origin": "*" }, })
+
+        axios.delete(url, {
+          headers: {
+            'Authorization': apiKey
+          }
+        })
           .then((response) => {
             this.updateRecipes();
             this.hideCreateRecipePopup();
             notify("La recette a bien été supprimée!", "success")
           })
-      }
+          .catch((error) => {
+            //get status code
+            var statusCode = error.response.status;
 
+            if (statusCode === 401) {
+              notify("Vous n'avez pas les droits pour supprimer cette recette", "error");
+            }
+            else{
+              notify("Une erreur est survenue lors de la suppression de la recette!", "error")
+            }
+          });
+      }
     });
 
   }
