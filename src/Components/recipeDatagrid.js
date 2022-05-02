@@ -4,16 +4,16 @@ import DataGrid, {
   Paging,
   Pager,
   Scrolling,
+  FilterRow,
+  GroupPanel,
   Selection,
 } from 'devextreme-react/data-grid';
 import { Button } from 'devextreme-react/button';
 
 
-const columns = ['Id', 'Name', 'TimeCook', 'TimePrep', 'Instructions', 'Note', 'Tags'];
 const allowedPageSizes = [5, 10, 'all'];
 
 class RecipeDatagrid extends React.Component {
-
 
   constructor(props) {
     super(props);
@@ -35,13 +35,15 @@ class RecipeDatagrid extends React.Component {
       <div>
         <DataGrid
           dataSource={this.props.recipes}
-          defaultColumns={columns}
           showBorders={true}
           onSelectionChanged={this.onSelectionChanged}
           hoverStateEnabled={true}
+          allowColumnResizing={true}
+          allowColumnReordering={true}
           keyExpr="Id"
-          
-        >
+          >
+          <FilterRow visible={true} />
+          <GroupPanel visible={true} />
           <Scrolling rowRenderingMode='virtual'></Scrolling>
           <Paging defaultPageSize={8} />
           <Pager
@@ -50,13 +52,13 @@ class RecipeDatagrid extends React.Component {
             showPageSizeSelector={true}
             showNavigationButtons={true} />
           <Selection mode="single" />
-          <Column dataField="Id" caption="Id" width={70} />
-          <Column dataField="Name" caption="Name" width={200} />
-          <Column dataField="TimeCook" caption="TimeCook" width={100} />
-          <Column dataField="TimePrep" caption="TimePrep" width={100} />
-          <Column dataField="Instructions" caption="Instructions" width={300} />
-          <Column dataField="Note" caption="Note" width={100} />
-          <Column dataField="Tags" caption="Tags" width={100} />
+
+          <Column dataField="Id" caption="Identifiant"  />
+          <Column dataField="Name" caption="Nom" />
+          <Column dataField="TimeCook" caption="Temps cuisson" />
+          <Column dataField="TimePrep" caption="Temps préparation"  />
+          <Column dataField="TypeName" caption="Type de recette" groupIndex={0} />
+
         </DataGrid>
       </div>
     );

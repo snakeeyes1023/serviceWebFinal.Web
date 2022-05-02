@@ -11,9 +11,9 @@ const addButtonOptions = {
 
 
 const deleteButtonOptions = {
-    icon: 'trash',
+    icon: 'export',
     location: 'after',
-    text: "Suprimer les recettes sélectionnées",
+    text: "Exporter la recette sélectionnée",
     type: "normal",
     stylingMode: "contained"
 };
@@ -39,6 +39,7 @@ class CustomToolbar extends React.Component {
                 <Item location="after"
                     locateInMenu="auto"
                     widget="dxButton"
+                    disabled={true}
                     onClick={() => this.props.deleteRecipe()}
                     options={deleteButtonOptions} />
 

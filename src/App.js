@@ -78,7 +78,8 @@ class App extends React.Component {
    */
   hideCreateRecipePopup() {
     this.setState({
-      recipePopupVisible: false
+      recipePopupVisible: false,
+      selectedRecipeId: 0,
     });
   }
 

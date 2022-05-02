@@ -1,5 +1,5 @@
 import React from 'react';
-import Form, { Item } from 'devextreme-react/form';
+import Form, { Item, RequiredRule, SimpleItem } from 'devextreme-react/form';
 import 'devextreme-react/text-area';
 import 'devextreme-react/tag-box';
 import SelectBox from 'devextreme-react/select-box';
@@ -8,6 +8,7 @@ import { Toolbar } from 'devextreme-react';
 import axios from 'axios';
 import { TextBox, Button as TextBoxButton } from 'devextreme-react/text-box';
 import { LoadPanel } from 'devextreme-react/load-panel';
+
 
 const position = { of: '#form-recipe' };
 
@@ -28,7 +29,7 @@ class RecipeForm extends React.Component {
         super(props);
 
         this.state = {
-            recipeData: null,
+            recipeData: {},
             selectedRecipeId: 0,
             pendingRecipe: null,
             searchRecipeUrl: "",
@@ -68,6 +69,7 @@ class RecipeForm extends React.Component {
             this.form = ref.instance;
         };
 
+        this.onRecipeTypeChanged = this.onRecipeTypeChanged.bind(this);
         this.sendForm = this.sendForm.bind(this);
         this.bindNewRecipe = this.bindNewRecipe.bind(this);
         this.clearForm = this.clearForm.bind(this);
@@ -100,6 +102,18 @@ class RecipeForm extends React.Component {
         }
     }
 
+    onRecipeTypeChanged(e) {
+        this.setState(() => {
+            return {
+                recipeData: {
+                    ...this.state.recipeData,
+                    Type: e
+                }
+            }
+        });
+    }
+
+
     /**
      * Clear all form fields
      */
@@ -110,13 +124,13 @@ class RecipeForm extends React.Component {
                     ...this.state.recipeData,
                     Id: 0,
                     Name: "",
-                    Type: "",
+                    Type: 0,
                     TimeCook: 0,
                     TimePrep: 0,
                     Ingredients: "",
+                    Instructions: "<ol><li></li></ol>",
                     Note: "",
-                    Tags: "",
-                    //Instructions: this.props.selectedRecipe.Instructions
+                    Tags: ""
                 },
                 selectedRecipeId: this.props.selectedRecipeId
             };
@@ -139,8 +153,8 @@ class RecipeForm extends React.Component {
                     TimePrep: this.props.selectedRecipe.TimePrep,
                     Ingredients: this.props.selectedRecipe.Ingredients,
                     Note: this.props.selectedRecipe.Note,
-                    Tags: this.props.selectedRecipe.Tags
-                    //Instructions: this.props.selectedRecipe.Instructions
+                    Tags: this.props.selectedRecipe.Tags,
+                    Instructions: this.props.selectedRecipe.Instructions
                 },
                 selectedRecipeId: this.props.selectedRecipeId
             };
@@ -155,23 +169,34 @@ class RecipeForm extends React.Component {
      */
     sendForm = (e) => {
 
-        var bodyFormData = new FormData();
+        var validationResult = this.form.validate();
+        if (validationResult.isValid) {
 
-        bodyFormData.set('Id', this.state.recipeData.Id);
-        bodyFormData.set('Name', this.state.recipeData.Name);
-        bodyFormData.set('RecipeTypeId', 2);
-        bodyFormData.set('TimeCook', this.state.recipeData.TimeCook);
-        bodyFormData.set('TimePrep', this.state.recipeData.TimePrep);
-        bodyFormData.set('Ingredients', this.state.recipeData.Ingredients);
-        bodyFormData.set('Note', this.state.recipeData.Note);
-        bodyFormData.set('Tags', this.state.recipeData.Tags);
-        bodyFormData.set('Instructions', this.state.recipeData.Instructions);
+            if(this.state.recipeData.Type === 0) {
+                notify("Le type de recette est requis", "error");
+                return;
+            }
+            var bodyFormData = new FormData();
 
-        // If the recipe is new, create it
-        if (this.props.selectedRecipeId === 0) {
-            this.createNewRecipe(bodyFormData);
-        } else {
-            this.updateRecipe(bodyFormData);
+            bodyFormData.set('Id', this.state.recipeData.Id);
+            bodyFormData.set('Name', this.state.recipeData.Name);
+            bodyFormData.set('RecipeTypeId', this.state.recipeData.Type);
+            bodyFormData.set('TimeCook', this.state.recipeData.TimeCook);
+            bodyFormData.set('TimePrep', this.state.recipeData.TimePrep);
+            bodyFormData.set('Ingredients', this.state.recipeData.Ingredients);
+            bodyFormData.set('Note', this.state.recipeData.Note);
+            bodyFormData.set('Tags', this.state.recipeData.Tags);
+            bodyFormData.set('Instructions', this.state.recipeData.Instructions);
+    
+            // If the recipe is new, create it
+            if (this.props.selectedRecipeId === 0) {
+                this.createNewRecipe(bodyFormData);
+            } else {
+                this.updateRecipe(bodyFormData);
+            }
+        }
+        else{
+            notify("Veuillez remplir tous les champs", "error");
         }
     }
 
@@ -179,7 +204,6 @@ class RecipeForm extends React.Component {
      * Search a recipe online
      */
     onUrlValueChanged = (e) => {
-        alert(e.value);
         this.setState({
             searchRecipeUrl: e.value
         });
@@ -266,14 +290,25 @@ class RecipeForm extends React.Component {
      * @param {*} bodyFormData 
      */
     updateRecipe(bodyFormData) {
-        axios.put('http://localhost/serviceWebFinal.Api/recipe', bodyFormData)
+
+        let errorMessage = "Erreur lors de la modification";
+
+        axios.post('http://localhost/serviceWebFinal.Api/recipe/' + this.props.selectedRecipeId, bodyFormData)
             .then(res => {
-                this.props.updateRecipes();
-                this.clearForm();
-                this.props.hidePopup();
+                if (res.data.success === true) {
+
+                    notify("La recette as bien été modifié.", "success")
+
+                    this.clearForm();
+                    this.props.updateRecipes();
+                    this.props.hidePopup();
+                }
+                else {
+                    notify(errorMessage, "error")
+                }
             })
             .catch(err => {
-                console.log(err);
+                notify(errorMessage, "error")
             });
     }
 
@@ -355,13 +390,17 @@ class RecipeForm extends React.Component {
                     <SelectBox dataSource={this.props.recipeType}
                         displayExpr="Name"
                         valueExpr="Id"
-                        defaultValue={1} />
+                        value={this.state.recipeData.Type}
+                        ValidationGroup="recipeData"
+                        onValueChange={this.onRecipeTypeChanged}
+                        />
 
                     <Form
                         ref={this.setForm}
-                        onContentReady={this.validateForm}
+                        validationGroup="recipeData"
+                        showValidationSummary={true}
                         colCount={2}
-                        id="form"
+                        id="dxFormContainer"
                         formData={this.state.recipeData}>
 
                         <Item dataField="Id"
@@ -369,41 +408,47 @@ class RecipeForm extends React.Component {
                             visible={false}
                         />
 
-                        <Item dataField="Name"
-                            placeholder="Name"
-                        />
+                        <SimpleItem dataField="Name"
+                            placeholder="Name">
+                            <RequiredRule message="Le nom est requis." />
+                        </SimpleItem>
 
-                        <Item dataField="TimeCook"
+
+                        <SimpleItem dataField="TimeCook"
                             editorType="dxNumberBox"
-                            placeholder="TimeCook"
-                        />
+                            placeholder="TimeCook">
+                            <RequiredRule message="le temps de cuisson est requis" />
+                        </SimpleItem>
 
-                        <Item dataField="TimePrep"
+                        <SimpleItem dataField="TimePrep"
                             editorType="dxNumberBox"
-                            placeholder="TimePrep"
-                        />
+                            placeholder="TimePrep">
+                            <RequiredRule message="Le temps de préparation est requis" />
+                        </SimpleItem>
 
-                        <Item dataField="Ingredients"
+                        <SimpleItem dataField="Ingredients"
                             editorType="dxTextBox"
-                            placeholder="Ingredients"
-                        />
+                            placeholder="Ingredients">
+                            <RequiredRule message="Les ingredients sont requis" />
+                        </SimpleItem>
 
-                        <Item dataField="Instructions"
+                        <SimpleItem dataField="Instructions"
                             colSpan={2}
-                            editorType="dxTextArea"
-                            placeholder="Instructions"
-                        />
+                            editorType="dxHtmlEditor"
+                            placeholder="Instructions">
+                            <RequiredRule message="Les instructions sont requise." />
+                        </SimpleItem>
 
-                        <Item dataField="Note"
+                        <SimpleItem dataField="Note"
                             colSpan={2}
                             placeholder="Notes"
-                            editorType="dxTextArea"
-                        />
+                            editorType="dxTextArea">
+                        </SimpleItem>
 
-                        <Item dataField="Tags"
+                        <SimpleItem dataField="Tags"
                             placeholder="Tags"
-                            editorType="dxTextBox"
-                        />
+                            editorType="dxTextBox">
+                        </SimpleItem>
 
                     </Form>
                 </div>
@@ -422,6 +467,7 @@ class RecipeForm extends React.Component {
                         onClick={() => this.sendForm()}
                         options={this.createUpdateButtonOptions} />
                 </Toolbar>
+
             </div>
         )
     }
