@@ -264,7 +264,7 @@ class RecipeForm extends React.Component {
      */
     createNewRecipe(bodyFormData) {
 
-        axios.post('http://localhost/serviceWebFinal.Api/recipe', bodyFormData)
+        axios.post(process.env.REACT_APP_API_URL + '/recipe', bodyFormData)
             .then(res => {
                 if (res.data.success === true) {
 
@@ -293,7 +293,7 @@ class RecipeForm extends React.Component {
 
         let errorMessage = "Erreur lors de la modification";
 
-        axios.post('http://localhost/serviceWebFinal.Api/recipe/' + this.props.selectedRecipeId, bodyFormData)
+        axios.post(process.env.REACT_APP_API_URL + '/recipe/' + this.props.selectedRecipeId, bodyFormData)
             .then(res => {
                 if (res.data.success === true) {
 

@@ -89,7 +89,7 @@ class App extends React.Component {
   * @param {*} recipeId 
   */
   editRecipe(recipeId) {
-    var url = "http://localhost/serviceWebFinal.Api/recipes?id=" + recipeId;
+    var url = process.env.REACT_APP_API_URL + "/recipes?id=" + recipeId;
 
     axios.get(url)
       .then((response) => {
@@ -124,8 +124,7 @@ class App extends React.Component {
 
       if (dialogResult) {
 
-        var url = "http://localhost/serviceWebFinal.Api/recipe/" + selectedRecipeId;
-
+        var url = process.env.REACT_APP_API_URL + "/recipe/" + selectedRecipeId;
 
         axios.delete(url, {
           headers: {
@@ -158,7 +157,7 @@ class App extends React.Component {
    * Get the list of recipe types
    */
   getTypes() {
-    axios.get('http://localhost/serviceWebFinal.Api/recipe-type')
+    axios.get( process.env.REACT_APP_API_URL + '/recipe-type')
       .then((response) => {
         //select only the name of the type
         this.setState({ recipeType: response.data.results })
@@ -169,7 +168,7 @@ class App extends React.Component {
    * Select all the recipes
    */
   updateRecipes() {
-    axios.get('http://localhost/serviceWebFinal.Api/recipes')
+    axios.get(process.env.REACT_APP_API_URL + '/recipes')
       .then((response) => {
         const recipes = response.data.results;
         // On récupère les données reçues et on modifie le tableau dans l'état
