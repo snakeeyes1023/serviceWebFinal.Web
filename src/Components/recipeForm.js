@@ -293,7 +293,7 @@ class RecipeForm extends React.Component {
 
         let errorMessage = "Erreur lors de la modification";
 
-        axios.post(process.env.REACT_APP_API_URL + '/recipe/' + this.props.selectedRecipeId, bodyFormData)
+        axios.put(process.env.REACT_APP_API_URL + '/recipe/' + this.props.selectedRecipeId, bodyFormData)
             .then(res => {
                 if (res.data.success === true) {
 
