@@ -172,6 +172,10 @@ class App extends React.Component {
     axios.get(process.env.REACT_APP_API_URL + '/recipes')
       .then((response) => {
         const recipes = response.data.results;
+        //order the recipes by id
+        recipes.sort(function (a, b) {
+          return a.id - b.id;
+        });
         // On récupère les données reçues et on modifie le tableau dans l'état
         this.setState({ recipes: recipes })
       })
