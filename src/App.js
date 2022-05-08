@@ -128,7 +128,8 @@ class App extends React.Component {
 
         axios.delete(url, {
           headers: {
-            'Authorization': apiKey
+            'Authorization': apiKey,
+            "Access-Control-Allow-Origin": "*"
           }
         })
           .then((response) => {
